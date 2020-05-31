@@ -28,13 +28,19 @@ class BaseVersion extends VersionProcessing{
       final Results results = await conn.query("SELECT * FROM `key` WHERE object_id=? and id=?;",[props[2],props[3]]);
       if (results.isEmpty){
         props[1]="unmatch";
-        await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default)",props);
+        print('hre');
+        try{
+        await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",props);
+        }
+        catch ( e){
+          print(e);
+        }
       }
       
       final Results idResults = await conn.query("SELECT id FROM move ORDER BY id DESC limit 2");
       int lastMove = 0;
       int currentMove = 0;
-      print("thispoint");
+  
       if (idResults.isNotEmpty){
         currentMove=idResults.elementAt(0)[0] as int;
         if (idResults.length ==2) 
@@ -43,7 +49,7 @@ class BaseVersion extends VersionProcessing{
 
       print(currentMove.toString() + " " + lastMove.toString());
 
-      final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove};
+      final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove,"position":props[5]};
     
       await FirebaseMessage(body:json.encode(body),session:"session1").send();
     }

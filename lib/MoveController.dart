@@ -16,19 +16,19 @@ class MoveController extends ResourceController {
 
 //Request handling
   @Operation.get()
-  Future<Response> registerMove({@Bind.query('objectId') int objectId, @Bind.query('keyId') int keyId, @Bind.query('userId') String userId, @Bind.query('sessionId') int sessionId, @Bind.query('type') String type}) async {
+  Future<Response> registerMove({@Bind.query('objectId') int objectId, @Bind.query('keyId') int keyId, @Bind.query('userId') String userId, @Bind.query('sessionId') int sessionId, @Bind.query('type') String type, @Bind.query('position') int position}) async {
     if (objectId==null || keyId==null || userId ==null || sessionId==null || type==null) 
       return Response.badRequest();
-    final List<dynamic> props = [sessionId,type,objectId,keyId,userId];
-
+    final List<dynamic> props = [sessionId,type,objectId,keyId,userId,position];
+  
     try{
-      await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default)",[sessionId,type,objectId,keyId,userId]);
+      await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",[sessionId,type,objectId,keyId,userId,position]);
       await versionSpecificProcessing(props);
       return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
     }
     on MySqlException catch (e){
-  
-      return Response.ok({"outcome":"invalid move"})..contentType=ContentType.json;
+    
+      return Response.ok({"outcome":e.message})..contentType=ContentType.json;
     }
   }
 
@@ -54,4 +54,4 @@ class MoveController extends ResourceController {
 }
 
 //Request example:
-//http://hci.ece.upatras.gr:8888/move?objectId=1&keyId=6&userId=1&sessionId=1&type=match
+//http://hci.ece.upatras.gr:8888/move?objectId=1&keyId=1&userId=1&sessionId=1&type=match

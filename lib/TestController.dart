@@ -17,7 +17,7 @@ class TestController extends ResourceController {
   Future<Response> getAssetRegistry() async {
     final String serviceJson=await File("map-testing-547d4-firebase-adminsdk-4wxk2-51868c54a8.json").readAsString();
     final _credentials = ServiceAccountCredentials.fromJson(serviceJson);
-    var client =  http.Client();
+    final client =  http.Client();
     
     await obtainAccessCredentialsViaServiceAccount(_credentials, ["https://www.googleapis.com/auth/firebase.messaging"], client)
         .then((AccessCredentials credentials) async{
