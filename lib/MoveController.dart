@@ -22,12 +22,12 @@ class MoveController extends ResourceController {
     final List<dynamic> props = [sessionId,type,objectId,keyId,userId,position];
   
     try{
+      print(sessionId);
       await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",[sessionId,type,objectId,keyId,userId,position]);
       await versionSpecificProcessing(props);
       return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
     }
     on MySqlException catch (e){
-    
       return Response.ok({"outcome":e.message})..contentType=ContentType.json;
     }
   }

@@ -24,7 +24,7 @@ class FirebaseMessage {
         .then((AccessCredentials credentials) async {
       final String message = jsonEncode({  
             "message":{
-                "topic": session,
+                "topic": "session1",
                 "data":{
                   "body":body,
                   "title":"Move"

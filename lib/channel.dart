@@ -7,6 +7,7 @@ import 'PreviousMovesController.dart';
 import 'ScanController.dart';
 import 'TestController.dart';
 import 'server_side.dart';
+import 'KeyController.dart';
 
 /// This type initializes an application.
 ///
@@ -60,6 +61,8 @@ class ServerSideChannel extends ApplicationChannel {
 
     router.route("/scan/[:session]").link(()=> ScanController(conn));
     
+    router.route("/keys").link(()=> KeyController(conn));
+  
     
     return router;
   }
@@ -75,5 +78,4 @@ class DatabaseConfig extends Configuration{
 
 //TODO object_key table
 //TODO SQL server-side NVC
-//TODO github ?? 
 

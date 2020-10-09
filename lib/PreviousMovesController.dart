@@ -12,6 +12,6 @@ class PreviousMovesController extends ResourceController {
   Future<Response> movesFetch(@Bind.path('session') int sessionId,{@Bind.query('move') int lastKnownMove=0}) async {
 
     Results results = await conn.query("SELECT id,type,object_id,key_id,user_id FROM move WHERE id>? AND session_id=?",[lastKnownMove,sessionId]);
-    return Response.ok([...results]);
+    return Response.ok([results]);
   }
 }
