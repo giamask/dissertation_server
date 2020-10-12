@@ -8,6 +8,7 @@ import 'ScanController.dart';
 import 'TestController.dart';
 import 'server_side.dart';
 import 'KeyController.dart';
+import 'ScoreController.dart';
 
 /// This type initializes an application.
 ///
@@ -62,6 +63,8 @@ class ServerSideChannel extends ApplicationChannel {
     router.route("/scan/[:session]").link(()=> ScanController(conn));
     
     router.route("/keys").link(()=> KeyController(conn));
+
+    router.route("/score/[:session]").link(()=>ScoreController(conn));
   
     
     return router;
