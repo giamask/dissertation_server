@@ -19,20 +19,23 @@ class ScoreController extends ResourceController {
       return Response.badRequest();
     
     try{
-      final Results correctResults = await conn.query("select t.color,t.team_name,team_successes.`COUNT(*)` from team_successes right join team as t on t.team_name=team_successes.team_name where t.session_id=? order by team_name asc",[sessionId]);
-      final Results wrongResults = await conn.query("select t.color,t.team_name,team_failures.`COUNT(*)` from team_failures right join team as t on t.team_name=team_failures.team_name where t.session_id=? order by team_name asc",[sessionId]);
-      // int i =0 ;
-      // while (correctResults.elementAt(0)!=null){
-      //  correctResults.elementAt(i).add(wrongResults.elementAt(i)[2]==null?0:wrongResults.elementAt(i)[2]);
-      //  i++;
-      // }
-      // final Map scoreboard = {"score":[]}; 
-      // correctResults.forEach((row) {scoreboard["score"].add({row[1]:[row[0],(row[2]==null?0:row[2]),row[3]]});});
-      // return Response.ok(jsonEncode(scoreboard));
-      List<List> scoreboard = [];
-      for(int i=0;i<correctResults.length;i++){
-        scoreboard.add([correctResults.elementAt(i)[0],correctResults.elementAt(i)[1],correctResults.elementAt(i)[2]??0,wrongResults.elementAt(i)[2]??0]);
-      }
+      final Results versionResults = await conn.query("SELECT game_version FROM session WHERE id= ?",[sessionId]);
+      if (versionResults.isEmpty) 
+        return Response.notFound();
+      final int currentVersion = versionResults.elementAt(0)[0] as int;
+
+      final String assetRegistry = await File("assets/session${sessionId}version${currentVersion}.json").readAsStringSync();
+      final json = jsonDecode(assetRegistry);
+      await conn.query("call scoreboard(?,?,?)",[sessionId,json['joumerka']['Score']['ScoreBonus'],json['joumerka']['Score']['ScorePenalty']]);
+      final Results results = await conn.query("select * from scoreboard");
+      final Results teams = await conn.query("select id from team where session_id = ? order by id asc;",[sessionId]);
+      int i = 0;
+      final List<List> scoreboard = [];
+      teams.forEach((element){
+        scoreboard.add([element[0],(results.elementAt(0)[1].toString()).split(",")[i]]);
+        i++;
+      });
+
       return Response.ok(scoreboard);
     }
     on MySqlException catch (e){

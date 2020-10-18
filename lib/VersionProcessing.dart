@@ -36,29 +36,31 @@ class BaseVersion extends VersionProcessing{
           print(e);
         }
       }else{
-
         try {
           updateAvailableKeys(conn,props[3] as int,props[0] as int,props[4] as String);
         } on Exception catch (e) { print(e);}
       }
       
-      final Results idResults = await conn.query("SELECT id FROM move ORDER BY id DESC limit 2");
+      final Results idResults = await conn.query("SELECT id,timestamp FROM move ORDER BY id DESC limit 2");
       int lastMove = 0;
       int currentMove = 0;
-  
+      String timestamp ="-";
       if (idResults.isNotEmpty){
         currentMove=idResults.elementAt(0)[0] as int;
+        timestamp = (idResults.elementAt(0)[1] as DateTime).toLocal().hour.toString() + ":" +(idResults.elementAt(0)[1] as DateTime).toLocal().minute.toString()  ;
         if (idResults.length ==2) 
           lastMove=idResults.elementAt(1)[0] as int;
       }
+  
 
-      print(currentMove.toString() + " " + lastMove.toString());
 
-      final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove,"position":props[5]};
+      final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove,"position":props[5],"timestamp":timestamp};
     
       await FirebaseMessage(body:json.encode(body),session:"session1").send();
     }
   }
+
+
   
   void updateAvailableKeys(MySqlConnection conn, int keyId,  int sessionId, String  userId) async{
     try {
@@ -70,6 +72,7 @@ class BaseVersion extends VersionProcessing{
         await conn.query("INSERT INTO key_user VALUES(?,?,?,default)", [assignableKeys.elementAt(rng.nextInt(assignableKeys.length))[0],usersAffectedRow[0],sessionId]);
       });
     } on Exception catch (e) {
+  
           print(e);
     }
   }
