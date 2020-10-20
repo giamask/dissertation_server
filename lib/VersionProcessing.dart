@@ -47,7 +47,10 @@ class BaseVersion extends VersionProcessing{
       String timestamp ="-";
       if (idResults.isNotEmpty){
         currentMove=idResults.elementAt(0)[0] as int;
-        timestamp = (idResults.elementAt(0)[1] as DateTime).toLocal().hour.toString() + ":" +(idResults.elementAt(0)[1] as DateTime).toLocal().minute.toString()  ;
+        final int hour = (idResults.elementAt(0)[1] as DateTime).toLocal().hour;
+        final int minute = (idResults.elementAt(0)[1] as DateTime).toLocal().minute;
+        timestamp = (hour<10?"0${hour.toString()}":hour.toString()) +":" + (minute<10?"0${minute.toString()}":minute.toString());
+
         if (idResults.length ==2) 
           lastMove=idResults.elementAt(1)[0] as int;
       }
