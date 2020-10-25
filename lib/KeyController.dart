@@ -25,16 +25,6 @@ class KeyController extends ResourceController {
     results.forEach((row)=>keyList.add(row[0] as int));
     return Response.ok({'keys':keyList});
   
-  //   try{
-  //     await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",[sessionId,type,objectId,keyId,userId,position]);
-  //     await versionSpecificProcessing(props);
-  //     return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
-  //   }
-  //   on MySqlException catch (e){
-    
-  //     return Response.ok({"outcome":e.message})..contentType=ContentType.json;
-  //   }
-  // }
 
 //Router to code that differs from version to version
 }

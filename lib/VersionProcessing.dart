@@ -26,10 +26,11 @@ class BaseVersion extends VersionProcessing{
   @override
   dynamic execute() async{
     if (props[1]=="match"){
-      final Results results = await conn.query("SELECT * FROM `key` WHERE object_id=? and id=?;",[props[2],props[3]]);
+      final Results results = await conn.query("SELECT * FROM `key` WHERE  object_id=? and id=? and game_version_id in (select game_version_id from session where id = ?);",[props[2],props[3],props[0]]);
       if (results.isEmpty){
         props[1]="unmatch";
         try{
+        await conn.query("DELETE FROM move WHERE key_id=? and object_id=? and session_id=? and type='match'",[props[3],props[2],props[0]]);
         await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",props);
         }
         catch (e){

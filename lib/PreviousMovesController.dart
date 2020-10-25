@@ -11,7 +11,16 @@ class PreviousMovesController extends ResourceController {
   @Operation.get('session')
   Future<Response> movesFetch(@Bind.path('session') int sessionId,{@Bind.query('move') int lastKnownMove=0}) async {
 
-    Results results = await conn.query("SELECT id,type,object_id,key_id,user_id FROM move WHERE id>? AND session_id=?",[lastKnownMove,sessionId]);
-    return Response.ok([results]);
+    Results results = await conn.query("SELECT id,type,object_id,key_id,user_id,position,timestamp FROM move WHERE id>? AND session_id=? order by id asc",[lastKnownMove,sessionId]);
+    List response = [];
+    for (var row in results) {
+      final int hour = (row[6] as DateTime).toLocal().hour;
+      final int minute = (row[6] as DateTime).toLocal().minute;
+      final String timestamp = (hour<10?"0${hour.toString()}":hour.toString()) +":" + (minute<10?"0${minute.toString()}":minute.toString());
+     response.add([row[0],row[1],row[2],row[3],row[4],row[5],timestamp]);
+    }
+    print(response);
+    return Response.ok(response);
+
   }
 }

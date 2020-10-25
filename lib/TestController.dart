@@ -14,7 +14,7 @@ class TestController extends ResourceController {
 
 
   @Operation.get()
-  Future<Response> getAssetRegistry() async {
+  Future<Response> getAssetRegistry(@Bind.query('body') String body) async {
     final String serviceJson=await File("map-testing-547d4-firebase-adminsdk-4wxk2-51868c54a8.json").readAsString();
     final _credentials = ServiceAccountCredentials.fromJson(serviceJson);
     final client =  http.Client();
@@ -24,10 +24,10 @@ class TestController extends ResourceController {
 
           final String message = jsonEncode({
             "message":{
-                "topic": "session1",
+                "topic": "session6",
                 "data":{
-                  "body":"This is an FCM notification message!",
-                  "title":"FCM Message"
+                  "body":body,
+                  "title":"Move"
                   }
               }
         });
