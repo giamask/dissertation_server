@@ -8,6 +8,7 @@ import 'ScanController.dart';
 import 'TestController.dart';
 import 'server_side.dart';
 import 'KeyController.dart';
+import 'PastScanController.dart';
 import 'ScoreController.dart';
 import 'AdminMessageController.dart';
 
@@ -62,6 +63,8 @@ class ServerSideChannel extends ApplicationChannel {
     router.route("/test").link(()=> TestController());
 
     router.route("/scan/[:session]").link(()=> ScanController(conn));
+
+     router.route("/past_scans/[:session]").link(()=> PastScanController(conn));
     
     router.route("/keys").link(()=> KeyController(conn));
 
