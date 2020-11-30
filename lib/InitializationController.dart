@@ -13,7 +13,7 @@ class InitializationController extends ResourceController {
   @Operation.get('session')
   Future<Response> getAssetRegistry(@Bind.path('session') int sessionId, {@Bind.query('version') int version=0}) async { 
 
-    final Results results = await conn.query("SELECT game_version FROM session WHERE id= ?",[sessionId]);
+    final Results results = await conn.query("SELECT rules_version from gameVersion join `session` on `session`.game_version=gameVersion.id where session.id=?",[sessionId]);
     if (results.isEmpty) 
     return Response.notFound();
     final int currentVersion = results.elementAt(0)[0] as int;

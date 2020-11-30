@@ -6,11 +6,13 @@ import 'MoveController.dart';
 import 'PreviousMovesController.dart';
 import 'ScanController.dart';
 import 'TestController.dart';
+import 'SessionController.dart';
 import 'server_side.dart';
 import 'KeyController.dart';
 import 'PastScanController.dart';
 import 'ScoreController.dart';
 import 'AdminMessageController.dart';
+import 'AdminSessionController.dart';
 
 /// This type initializes an application.
 ///
@@ -71,6 +73,10 @@ class ServerSideChannel extends ApplicationChannel {
     router.route("/score/[:session]").link(()=>ScoreController(conn));
 
     router.route("/adminMessage/[:session]").link(()=>AdminMessageController());
+
+    router.route("/sessions/[:user]").link(()=>SessionController(conn));
+
+    router.route("/admin/[:session]").link(()=>AdminSessionController(conn));
   
     
     return router;

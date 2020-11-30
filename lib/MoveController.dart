@@ -28,6 +28,7 @@ class MoveController extends ResourceController {
       return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
     }
     on MySqlException catch (e){
+      print(e);
       return Response.ok({"outcome":e.message})..contentType=ContentType.json;
     }
   }
