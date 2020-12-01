@@ -22,19 +22,18 @@ class MoveController extends ResourceController {
     final List<dynamic> props = [sessionId,type,objectId,keyId,userId,position];
   
     try{
-      print(sessionId);
-      await conn.query("INSERT INTO move VALUES(null,?,?,?,?,?,default,?)",[sessionId,type,objectId,keyId,userId,position]);
-      await versionSpecificProcessing(props);
-      return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
+    
+      final Response response = await versionSpecificProcessing(props);
+      return response;
     }
     on MySqlException catch (e){
-      print(e);
+  
       return Response.ok({"outcome":e.message})..contentType=ContentType.json;
     }
   }
 
 //Router to code that differs from version to version
-  Future<void> versionSpecificProcessing(List props) async{
+  Future<Response> versionSpecificProcessing(List props) async{
     final Results results = await conn.query("SELECT game_version FROM session WHERE id= ?",[props[0]]);
     if (results.isEmpty) 
       return Response.notFound();
@@ -50,7 +49,7 @@ class MoveController extends ResourceController {
       }
       break;
     }
-    versionProcessing.execute();
+    return versionProcessing.execute();
   }
 }
 
