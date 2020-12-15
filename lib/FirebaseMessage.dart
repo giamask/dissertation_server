@@ -5,9 +5,10 @@ import 'package:server_side/server_side.dart';
 import 'package:http/http.dart' as http;
 
 class FirebaseMessage {
-  FirebaseMessage({this.body,this.session});
+  FirebaseMessage({this.body,this.topic,this.token});
+  final String token;
   final String body;
-  final String session;
+  final String topic;
   
 
 
@@ -17,18 +18,27 @@ class FirebaseMessage {
             .readAsString();
     final _credentials = ServiceAccountCredentials.fromJson(serviceJson);
     final client = http.Client();
-
-
     await obtainAccessCredentialsViaServiceAccount(_credentials,
             ["https://www.googleapis.com/auth/firebase.messaging"], client)
         .then((AccessCredentials credentials) async {
-      final String message = jsonEncode({  
+      final String message = 
+      topic==null? 
+      jsonEncode({  
             "message":{
-                "topic": "session7",
                 "data":{
                   "body":body,
                   "title":"Move"
-                  }
+                  },
+                   "token": token,
+              }
+      }): 
+      jsonEncode({  
+            "message":{
+                "data":{
+                  "body":body,
+                  "title":"Move"
+                  },
+                   "topic": topic,
               }
       });
 

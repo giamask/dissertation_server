@@ -72,7 +72,7 @@ class ServerSideChannel extends ApplicationChannel {
 
     router.route("/score/[:session]").link(()=>ScoreController(conn));
 
-    router.route("/adminMessage/[:session]").link(()=>AdminMessageController());
+    router.route("/adminMessage/[:session]").link(()=>AdminMessageController(conn));
 
     router.route("/sessions/[:user]").link(()=>SessionController(conn));
 

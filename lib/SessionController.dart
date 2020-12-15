@@ -14,12 +14,11 @@ class SessionController extends ResourceController {
 
 
   @Operation.get('user')
-  Future<Response> registerMove({@Bind.path('user') String user}) async {
-    if ( user ==null ) 
+  Future<Response> registerMove({@Bind.path('user') String user, @Bind.query("token") String token}) async {
+    if ( user ==null || token==null ) 
       return Response.badRequest();
-
     try{
-
+      await conn.query("UPDATE `user` SET device_token=? WHERE id = ?",[token,user]);
       Results results = await conn.query("SELECT DISTINCT session.* FROM session join team on session.id = team.session_id where state = 'live' and team.id in (select team_id from `team_user` where user_id=?)",[user]);
       List<Map> response = [];
       results.forEach((row){

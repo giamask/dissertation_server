@@ -28,8 +28,10 @@ class BaseVersion extends VersionProcessing{
 
   @override
   Future<Response> execute() async{
+  
     if (props[1]=="match"){
       final Results results = await conn.query("SELECT * FROM `key_object` WHERE  object_id=? and key_id=? and game_version_id in (select game_version_id from session where id = ?);",[props[2],props[3],props[0]]);
+    
       if (results.isEmpty){
         props[1]="unmatch";
         try{
@@ -50,8 +52,19 @@ class BaseVersion extends VersionProcessing{
           return Response.ok({"outcome":e.message})..contentType=ContentType.json;
         }
       }
-        updateScore(props);
-        final Results idResults = await conn.query("SELECT id,timestamp FROM move ORDER BY id DESC limit 2");
+   
+        bool filter = await updateScore(props);
+        Results idResults;
+
+        try{
+          idResults = await conn.query("SELECT id,timestamp FROM move WHERE session_id=${props[0]} ORDER BY id DESC limit 2");
+          // Για κάποιο λόγο χωρίς να βγάζει κάποιο error το query εδω αργεί παρά πολυ ώρα αν γίνει κανονικά ή δε γίνεται καθόλου. Παραδόξως αν εισάγουμε το props[0] μεσα δουλευει κανονικα.
+        }
+        catch(e){
+          print(e);
+          return Response.serverError();
+        }
+  
         int lastMove = 0;
         int currentMove = 0;
         String timestamp ="-";
@@ -64,10 +77,13 @@ class BaseVersion extends VersionProcessing{
           if (idResults.length ==2) 
             lastMove=idResults.elementAt(1)[0] as int;
         }
-  
-        final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove,"position":props[5],"timestamp":timestamp};
       
-        await FirebaseMessage(body:json.encode(body),session:"session1").send();
+        final Map body={"session":props[0],"type":props[1],"objectId":props[2],"keyId":props[3],"userId":props[4],"currentMoveId":currentMove,"lastMoveId":lastMove,"position":props[5],"timestamp":timestamp,"playerOnly":filter};
+   
+        Results targetUsers = await conn.query("select DISTINCT device_token from user WHERE device_token is not null and id in (select user_id from team_user join team on team_id=id where session_id=${props[0]})");
+        await targetUsers.forEach((element) async{ 
+          await FirebaseMessage(body:json.encode(body),token:element.elementAt(0) as String).send();
+        });
         return Response.ok({"outcome":"valid move"})..contentType=ContentType.json;
           }
         }
@@ -89,8 +105,11 @@ class BaseVersion extends VersionProcessing{
           }
         }
       
-        void updateScore(List props) {
+        Future<bool> updateScore(List props) async {
           bool add = props[1]=="match";
-          conn.query("UPDATE team SET score = score ${add?'+':'-'} (SELECT ${add?'bonus':'penalty'} from gameVersion where id in (SELECT game_version FROM session where id=?) ) where id in (select team_id from team_user where user_id=?) and session_id=? and score >${add?'=':''} 0",[props[0],props[4],props[0]]);
-        }
+          bool filter = !add && (await conn.query("SELECT score FROM team where session_id=? and id in (SELECT team_id FROM team_user where user_id=?)",[props[0],props[4]])).elementAt(0)[0]==0;
+        
+          await conn.query("UPDATE team SET score = score ${add?'+':'-'} (SELECT ${add?'bonus':'penalty'} from gameVersion where id in (SELECT game_version FROM session where id=?) ) where id in (select team_id from team_user where user_id=?) and session_id=? and score >${add?'=':''} 0",[props[0],props[4],props[0]]);
+          return filter;
+          }
 }

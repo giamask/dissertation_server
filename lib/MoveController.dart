@@ -22,7 +22,6 @@ class MoveController extends ResourceController {
     final List<dynamic> props = [sessionId,type,objectId,keyId,userId,position];
   
     try{
-    
       final Response response = await versionSpecificProcessing(props);
       return response;
     }
