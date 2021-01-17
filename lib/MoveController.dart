@@ -20,6 +20,7 @@ class MoveController extends ResourceController {
     if (objectId==null || keyId==null || userId ==null || sessionId==null || type==null) 
       return Response.badRequest();
     final List<dynamic> props = [sessionId,type,objectId,keyId,userId,position];
+    
   
     try{
       final Response response = await versionSpecificProcessing(props);
@@ -44,7 +45,7 @@ class MoveController extends ResourceController {
       }
       break;
       case 2:{
-        versionProcessing = VersionProcessing(props,conn);
+        versionProcessing = BaseVersion(props,conn);
       }
       break;
     }

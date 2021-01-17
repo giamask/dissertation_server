@@ -14,8 +14,9 @@ class PreviousMovesController extends ResourceController {
     Results results = await conn.query("SELECT id,type,object_id,key_id,user_id,position,timestamp FROM move WHERE id>? AND session_id=? order by id asc",[lastKnownMove,sessionId]);
     List response = [];
     for (var row in results) {
-      final int hour = (row[6] as DateTime).toLocal().hour;
-      final int minute = (row[6] as DateTime).toLocal().minute;
+      final int hour = (row[6] as DateTime).hour;
+      final int minute = (row[6] as DateTime).minute;
+      print(hour.toString());
       final String timestamp = (hour<10?"0${hour.toString()}":hour.toString()) +":" + (minute<10?"0${minute.toString()}":minute.toString());
      response.add([row[0],row[1],row[2],row[3],row[4],row[5],timestamp]);
     }

@@ -92,7 +92,7 @@ class BaseVersion extends VersionProcessing{
         
         void updateAvailableKeys(MySqlConnection conn, int keyId,  int sessionId, String  userId) async{
           try {
-            final Results usersAffected = await conn.query("select user_id from key_user where key_id = ?;",[keyId]);
+            final Results usersAffected = await conn.query("select user_id from key_user where key_id = ? and `session`=?;",[keyId,sessionId]);
             final rng = Random();
             usersAffected.forEach((usersAffectedRow) async{
               final Results assignableKeys = await conn.query(''' SELECT key_id from `key_object` where game_version_id = (select game_version from session where id = ?) and key_id not in (SELECT key_id from key_user where user_id=? and session=?) and 
@@ -107,9 +107,9 @@ class BaseVersion extends VersionProcessing{
       
         Future<bool> updateScore(List props) async {
           bool add = props[1]=="match";
-          bool filter = !add && (await conn.query("SELECT score FROM team where session_id=? and id in (SELECT team_id FROM team_user where user_id=?)",[props[0],props[4]])).elementAt(0)[0]==0;
-        
-          await conn.query("UPDATE team SET score = score ${add?'+':'-'} (SELECT ${add?'bonus':'penalty'} from gameVersion where id in (SELECT game_version FROM session where id=?) ) where id in (select team_id from team_user where user_id=?) and session_id=? and score >${add?'=':''} 0",[props[0],props[4],props[0]]);
+          bool filter = !add && ((await conn.query("SELECT score FROM team where session_id=? and id in (SELECT team_id FROM team_user where user_id=?)",[props[0],props[4]])).elementAt(0)[0])==0;
+          //filter off 
+          await conn.query("UPDATE team SET score = score ${add?'+':'-'} (SELECT ${add?'bonus':'penalty'} from gameVersion where id in (SELECT game_version FROM session where id=?) ) where id in (select team_id from team_user where user_id=?) and session_id=? ${add?'':'and score>=0'}",[props[0],props[4],props[0]]);
           return filter;
           }
 }

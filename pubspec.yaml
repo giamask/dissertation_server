@@ -10,6 +10,7 @@ dependencies:
   aqueduct: ^3.0.0
   mysql1:
 
+  http:
   googleapis: 0.54.0
   googleapis_auth: 
 dev_dependencies:

@@ -19,10 +19,10 @@ class SessionController extends ResourceController {
       return Response.badRequest();
     try{
       await conn.query("UPDATE `user` SET device_token=? WHERE id = ?",[token,user]);
-      Results results = await conn.query("SELECT DISTINCT session.* FROM session join team on session.id = team.session_id where state = 'live' and team.id in (select team_id from `team_user` where user_id=?)",[user]);
+      Results results = await conn.query("SELECT DISTINCT session.* FROM session join team on session.id = team.session_id where state != 3 and state!=4 and team.id in (select team_id from `team_user` where user_id=?)",[user]);
       List<Map> response = [];
       results.forEach((row){
-        response.add({"sessionName":row.elementAt(3),"sessionId":row.elementAt(0)});
+        response.add({"sessionName":row.elementAt(3),"sessionId":row.elementAt(0),"state":row['state']});
       });
       return Response.ok(response);
     }

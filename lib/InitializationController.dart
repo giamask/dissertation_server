@@ -21,6 +21,7 @@ class InitializationController extends ResourceController {
     if ( version< currentVersion){
       final File file = File("assets/session${sessionId}version${currentVersion}.json");
       final String response = await file.readAsString();
+      print("FileHandedAnew");
       return Response.ok(jsonDecode(response))..contentType = ContentType.json;
     }
     

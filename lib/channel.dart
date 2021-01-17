@@ -30,8 +30,7 @@ class ServerSideChannel extends ApplicationChannel {
 
   @override
   Future prepare() async {
-    logger.onRecord.listen(
-        (rec) => print("$rec ${rec.error ?? ""} ${rec.stackTrace ?? ""}"));
+
     final config = DatabaseConfig("config.yaml");
     final settings = ConnectionSettings(
         host: config.database.host,
@@ -40,7 +39,16 @@ class ServerSideChannel extends ApplicationChannel {
         password: config.database.password,
         db: config.database.databaseName);
     conn = await MySqlConnection.connect(settings);
-    
+    logger.onRecord.listen(
+    (rec) { 
+      print("$rec ${rec.error ?? ""} ${rec.stackTrace ?? "" }");
+      try{
+        File('log.txt').writeAsString("${DateTime.now()}$rec ${rec.error ?? ""} ${rec.stackTrace ?? ""} \n",mode:FileMode.append);
+      }
+      catch(e){
+        print(e);
+      }
+    });
     
   }
 
